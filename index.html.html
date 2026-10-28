@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Binggrae Power Cap - 雙人手速搶擰冰沙</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Y2K / Korean Gaming Style -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti for Celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'power-blue': '#00A8FF',
+                        'power-sky': '#70D6FF',
+                        'power-ice': '#E0F7FA',
+                        'power-cyan': '#00E5FF',
+                        'power-accent': '#FF3366',
+                        'power-yellow': '#FFD000'
+                    },
+                    fontFamily: {
+                        'game': ['Fredoka', 'Noto Sans TC', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #00B4DB 0%, #0083B0 100%);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Glassmorphism effects */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(0, 168, 255, 0.37);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border: 2px solid #70D6FF;
+        }
+
+        /* Cap Twist Keyframe Animation */
+        @keyframes capTwistLeft {
+            0% { transform: rotate(0deg) translateY(0); }
+            50% { transform: rotate(-25deg) translateY(-4px); }
+            100% { transform: rotate(0deg) translateY(0); }
+        }
+
+        @keyframes capTwistRight {
+            0% { transform: rotate(0deg) translateY(0); }
+            50% { transform: rotate(25deg) translateY(-4px); }
+            100% { transform: rotate(0deg) translateY(0); }
+        }
+
+        .twist-left {
+            animation: capTwistLeft 0.15s ease-in-out;
+        }
+
+        .twist-right {
+            animation: capTwistRight 0.15s ease-in-out;
+        }
+
+        /* Ice Slush Gel Animation */
+        @keyframes slushBubble {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-5px) scale(1.03); }
+        }
+
+        .slush-active {
+            animation: slushBubble 0.3s ease-in-out infinite;
+        }
+
+        /* Ice Aura Glow */
+        .ice-glow {
+            filter: drop-shadow(0 0 12px rgba(0, 229, 255, 0.8));
+        }
+
+        /* Sun Melting Effects */
+        @keyframes sunMelt {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.3) rotate(180deg); opacity: 0.9; }
+            100% { transform: scale(1.6) rotate(360deg); opacity: 0.8; }
+        }
+
+        .sun-active {
+            animation: sunMelt 3s infinite linear;
+        }
+
+        /* Shaking effect on tap */
+        .bottle-shake {
+            animation: shake 0.1s ease-in-out;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(-3px, 2px) scale(0.98); }
+            50% { transform: translate(3px, -2px) scale(1.02); }
+            75% { transform: translate(-2px, -1px) scale(0.99); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between h-screen w-screen p-0 m-0 select-none overflow-hidden text-slate-800">
+
+    <!-- MAIN MENU SCREEN -->
+    <div id="start-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-between p-6 bg-gradient-to-b from-sky-400 via-blue-500 to-indigo-600 text-white text-center">
+        <!-- Floating Ice Background Deco -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+            <i class="fa-solid font-bold fa-snowflake text-6xl absolute top-10 left-8 animate-bounce"></i>
+            <i class="fa-solid fa-snowflake text-4xl absolute top-1/3 right-10 animate-pulse"></i>
+            <i class="fa-solid fa-icicles text-7xl absolute bottom-20 left-12"></i>
+            <i class="fa-solid fa-bolt text-5xl absolute bottom-1/3 right-16 text-yellow-300"></i>
+        </div>
+
+        <!-- Header / Logo -->
+        <div class="mt-6 z-10">
+            <div class="inline-block bg-white text-power-blue font-black text-xs px-4 py-1.5 rounded-full shadow-lg tracking-widest uppercase mb-2">
+                Binggrae 冰格瑞
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-black tracking-wider text-yellow-300 drop-shadow-[0_4px_10px_rgba(0,0,0,0.4)]">
+                POWER CAP
+            </h1>
+            <p class="text-xl sm:text-2xl font-black text-white drop-shadow-md mt-1">
+                【雙人手速搶擰冰沙】
+            </p>
+            <span class="inline-block mt-2 text-xs bg-cyan-400/30 text-cyan-100 border border-cyan-200/50 px-3 py-1 rounded-full">
+                Speed Twist Duel
+            </span>
+        </div>
+
+        <!-- Center Interactive Preview Bottle -->
+        <div class="my-auto z-10 flex flex-col items-center">
+            <div class="relative w-36 h-52 bg-white/10 rounded-3xl p-4 glass-panel flex items-center justify-center shadow-2xl">
+                <!-- SVG Bottle Icon -->
+                <svg id="menu-bottle-svg" class="w-full h-full drop-shadow-[0_10px_15px_rgba(0,0,0,0.3)]" viewBox="0 0 100 160">
+                    <!-- Cap -->
+                    <path class="fill-yellow-400 stroke-yellow-500 stroke-2" d="M 38 12 C 38 5, 62 5, 62 12 L 65 24 L 35 24 Z" />
+                    <circle cx="50" cy="8" r="5" class="fill-red-500" />
+                    <!-- Neck -->
+                    <rect x="42" y="24" width="16" height="12" class="fill-sky-200 stroke-sky-400" />
+                    <!-- Body Tube -->
+                    <path class="fill-sky-300/80 stroke-white stroke-2" d="M 30 36 C 20 50, 20 120, 28 145 C 32 155, 68 155, 72 145 C 80 120, 80 50, 70 36 Z" />
+                    <!-- Ridges -->
+                    <line x1="26" y1="60" x2="74" y2="60" class="stroke-white/60 stroke-2" />
+                    <line x1="24" y1="80" x2="76" y2="80" class="stroke-white/60 stroke-2" />
+                    <line x1="25" y1="100" x2="75" y2="100" class="stroke-white/60 stroke-2" />
+                    <!-- Ice Level Inner -->
+                    <path class="fill-cyan-400/90" d="M 28 85 C 30 85, 70 85, 72 85 C 78 120, 78 135, 70 143 C 65 148, 35 148, 30 143 C 22 135, 22 120, 28 85 Z" />
+                    <!-- Soda Text -->
+                    <text x="50" y="115" font-size="12" font-weight="900" fill="white" text-anchor="middle">뽕따</text>
+                </svg>
+            </div>
+            <p class="text-xs text-sky-100 mt-3 font-medium bg-blue-900/40 px-3 py-1 rounded-full border border-white/20">
+                <i class="fa-solid fa-hand-pointer mr-1"></i> 瘋狂擰蓋擠壓，滿填能量即勝！
+            </p>
+        </div>
+
+        <!-- Mode Buttons -->
+        <div class="w-full max-w-xs space-y-3 z-10 mb-4">
+            <button id="btn-2p" onclick="startGame('2p')" class="w-full py-4 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-slate-900 font-black text-xl rounded-2xl shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-3 border-2 border-yellow-200">
+                <i class="fa-solid fa-users text-2xl"></i>
+                <span>單機雙人同屏 (2P)</span>
+            </button>
+
+            <button id="btn-1p" onclick="startGame('1p')" class="w-full py-3.5 bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-white font-bold text-lg rounded-2xl shadow-md transform active:scale-95 transition-all flex items-center justify-center gap-3 border border-cyan-200/50">
+                <i class="fa-solid fa-robot text-xl"></i>
+                <span>單人挑戰 AI (1P)</span>
+            </button>
+
+            <button onclick="toggleAudio()" id="btn-audio-toggle" class="px-4 py-1.5 bg-black/20 text-white/80 rounded-full text-xs font-semibold hover:bg-black/40">
+                <i class="fa-solid fa-volume-high mr-1" id="audio-icon"></i> 音效: 開啟
+            </button>
+        </div>
+
+        <div class="text-[10px] text-white/60 z-10 pb-2">
+            © Binggrae Co., Ltd. All Rights Reserved.
+        </div>
+    </div>
+
+    <!-- GAMEPLAY CONTAINER -->
+    <div id="game-container" class="relative w-full h-full flex flex-col justify-between overflow-hidden bg-gradient-to-b from-sky-300 via-blue-400 to-sky-500 hidden">
+        
+        <!-- ================= PLAYER 1 (TOP AREA - UPSIDE DOWN FOR 2P) ================= -->
+        <div id="p1-zone" class="relative w-full h-[50%] flex flex-col justify-between p-4 border-b-4 border-white/40 transform rotate-180 transition-transform duration-300">
+            
+            <!-- P1 Header & Energy Bar -->
+            <div class="w-full flex items-center justify-between gap-3 bg-black/20 p-2.5 rounded-2xl glass-panel">
+                <div class="flex items-center gap-2">
+                    <div id="p1-avatar" class="w-9 h-9 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center text-slate-900 font-black text-sm shadow">
+                        P1
+                    </div>
+                    <div class="text-left">
+                        <div id="p1-name" class="text-xs font-bold text-white drop-shadow">玩家 1 (Top)</div>
+                        <div id="p1-score-text" class="text-[10px] text-cyan-200 font-semibold">能量 0%</div>
+                    </div>
+                </div>
+
+                <!-- Energy Progress Bar -->
+                <div class="flex-1 h-5 bg-black/40 rounded-full p-1 border border-white/30 relative overflow-hidden">
+                    <div id="p1-bar" class="h-full bg-gradient-to-r from-cyan-400 to-yellow-300 rounded-full transition-all duration-75 w-0 shadow-[0_0_10px_#00E5FF]"></div>
+                    <span class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white drop-shadow-md">POWER CAP</span>
+                </div>
+            </div>
+
+            <!-- P1 Interactive Bottle Area -->
+            <div class="flex-1 flex items-center justify-center my-2 relative">
+                <!-- Cap Off Flying Visual Effect Container -->
+                <div id="p1-cap-fly" class="absolute z-20 pointer-events-none opacity-0 transition-all duration-500">
+                    <svg class="w-12 h-12 text-yellow-400 drop-shadow-lg" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="40" fill="#FFD000" />
+                        <text x="50" y="60" font-size="30" font-weight="bold" fill="#000" text-anchor="middle">CAP</text>
+                    </svg>
+                </div>
+
+                <!-- Bottle Container -->
+                <div id="p1-bottle-box" class="relative w-32 h-52 sm:w-40 sm:h-64 cursor-pointer active:scale-95 transition-transform flex items-center justify-center">
+                    
+                    <!-- SVG Power Cap Bottle -->
+                    <svg id="p1-bottle-svg" class="w-full h-full drop-shadow-[0_12px_20px_rgba(0,0,0,0.3)]" viewBox="0 0 100 160">
+                        <!-- Twist Cap -->
+                        <g id="p1-cap-group" class="transition-transform origin-bottom">
+                            <path class="fill-yellow-400 stroke-amber-500 stroke-2" d="M 38 10 C 38 4, 62 4, 62 10 L 66 22 L 34 22 Z" />
+                            <circle cx="50" cy="7" r="5" class="fill-red-500" />
+                            <!-- Ring -->
+                            <rect x="40" y="22" width="20" height="4" class="fill-yellow-500" />
+                        </g>
+                        <!-- Neck -->
+                        <rect x="42" y="26" width="16" height="10" class="fill-sky-100 stroke-sky-300" />
+                        <!-- Main Polybottle Body -->
+                        <path class="fill-sky-200/90 stroke-white stroke-[2.5]" d="M 30 36 C 18 50, 18 120, 26 145 C 30 155, 70 155, 74 145 C 82 120, 82 50, 70 36 Z" />
+                        
+                        <!-- Ribbed Grooves / Ridges -->
+                        <line x1="25" y1="58" x2="75" y2="58" class="stroke-white/80 stroke-2" />
+                        <line x1="23" y1="78" x2="77" y2="78" class="stroke-white/80 stroke-2" />
+                        <line x1="24" y1="98" x2="76" y2="98" class="stroke-white/80 stroke-2" />
+                        <line x1="26" y1="118" x2="74" y2="118" class="stroke-white/80 stroke-2" />
+
+                        <!-- Dynamic Inner Slush Filling -->
+                        <g id="p1-slush-clip">
+                            <path id="p1-slush-path" class="fill-gradient-to-t fill-power-cyan/90 transition-all duration-100" d="M 27 60 C 27 60, 73 60, 73 60 C 80 115, 80 135, 72 143 C 68 148, 32 148, 28 143 C 20 135, 20 115, 27 60 Z" />
+                        </g>
+
+                        <!-- Ice Crystal Pattern Overlay -->
+                        <path class="fill-white/30" d="M 35 45 L 45 40 L 40 50 Z M 60 70 L 68 65 L 63 75 Z" />
+                        
+                        <!-- Logo Label -->
+                        <rect x="32" y="90" width="36" height="24" rx="6" class="fill-blue-600/80" />
+                        <text x="50" y="107" font-size="11" font-weight="900" fill="#FFD000" text-anchor="middle">뽕따</text>
+                    </svg>
+
+                    <!-- Tap Ripple / Splash Prompt -->
+                    <div id="p1-action-hint" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span class="bg-yellow-400 text-slate-900 font-black text-xs px-3 py-1 rounded-full shadow-lg animate-bounce border border-white">
+                            快速擰捏！
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- P1 Bottom Floating Bubbles -->
+            <div class="h-2 w-full flex justify-center items-center gap-1 opacity-60">
+                <div class="w-2 h-2 rounded-full bg-white"></div>
+                <div class="w-3 h-3 rounded-full bg-cyan-200"></div>
+                <div class="w-2 h-2 rounded-full bg-white"></div>
+            </div>
+        </div>
+
+
+        <!-- ================= PLAYER 2 (BOTTOM AREA) ================= -->
+        <div id="p2-zone" class="relative w-full h-[50%] flex flex-col justify-between p-4">
+            
+            <!-- P2 Header & Energy Bar -->
+            <div class="w-full flex items-center justify-between gap-3 bg-black/20 p-2.5 rounded-2xl glass-panel">
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-full bg-power-blue border-2 border-white flex items-center justify-center text-white font-black text-sm shadow">
+                        P2
+                    </div>
+                    <div class="text-left">
+                        <div id="p2-name" class="text-xs font-bold text-white drop-shadow">玩家 2 (Bottom)</div>
+                        <div id="p2-score-text" class="text-[10px] text-cyan-200 font-semibold">能量 0%</div>
+                    </div>
+                </div>
+
+                <!-- Energy Progress Bar -->
+                <div class="flex-1 h-5 bg-black/40 rounded-full p-1 border border-white/30 relative overflow-hidden">
+                    <div id="p2-bar" class="h-full bg-gradient-to-r from-cyan-400 to-yellow-300 rounded-full transition-all duration-75 w-0 shadow-[0_0_10px_#00E5FF]"></div>
+                    <span class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white drop-shadow-md">POWER CAP</span>
+                </div>
+            </div>
+
+            <!-- P2 Interactive Bottle Area -->
+            <div class="flex-1 flex items-center justify-center my-2 relative">
+                <!-- Cap Off Flying Visual Effect Container -->
+                <div id="p2-cap-fly" class="absolute z-20 pointer-events-none opacity-0 transition-all duration-500">
+                    <svg class="w-12 h-12 text-yellow-400 drop-shadow-lg" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="40" fill="#FFD000" />
+                        <text x="50" y="60" font-size="30" font-weight="bold" fill="#000" text-anchor="middle">CAP</text>
+                    </svg>
+                </div>
+
+                <!-- Bottle Container -->
+                <div id="p2-bottle-box" class="relative w-32 h-52 sm:w-40 sm:h-64 cursor-pointer active:scale-95 transition-transform flex items-center justify-center">
+                    
+                    <!-- SVG Power Cap Bottle -->
+                    <svg id="p2-bottle-svg" class="w-full h-full drop-shadow-[0_12px_20px_rgba(0,0,0,0.3)]" viewBox="0 0 100 160">
+                        <!-- Twist Cap -->
+                        <g id="p2-cap-group" class="transition-transform origin-bottom">
+                            <path class="fill-yellow-400 stroke-amber-500 stroke-2" d="M 38 10 C 38 4, 62 4, 62 10 L 66 22 L 34 22 Z" />
+                            <circle cx="50" cy="7" r="5" class="fill-red-500" />
+                            <!-- Ring -->
+                            <rect x="40" y="22" width="20" height="4" class="fill-yellow-500" />
+                        </g>
+                        <!-- Neck -->
+                        <rect x="42" y="26" width="16" height="10" class="fill-sky-100 stroke-sky-300" />
+                        <!-- Main Polybottle Body -->
+                        <path class="fill-sky-200/90 stroke-white stroke-[2.5]" d="M 30 36 C 18 50, 18 120, 26 145 C 30 155, 70 155, 74 145 C 82 120, 82 50, 70 36 Z" />
+                        
+                        <!-- Ribbed Grooves / Ridges -->
+                        <line x1="25" y1="58" x2="75" y2="58" class="stroke-white/80 stroke-2" />
+                        <line x1="23" y1="78" x2="77" y2="78" class="stroke-white/80 stroke-2" />
+                        <line x1="24" y1="98" x2="76" y2="98" class="stroke-white/80 stroke-2" />
+                        <line x1="26" y1="118" x2="74" y2="118" class="stroke-white/80 stroke-2" />
+
+                        <!-- Dynamic Inner Slush Filling -->
+                        <g id="p2-slush-clip">
+                            <path id="p2-slush-path" class="fill-gradient-to-t fill-power-cyan/90 transition-all duration-100" d="M 27 60 C 27 60, 73 60, 73 60 C 80 115, 80 135, 72 143 C 68 148, 32 148, 28 143 C 20 135, 20 115, 27 60 Z" />
+                        </g>
+
+                        <!-- Ice Crystal Pattern Overlay -->
+                        <path class="fill-white/30" d="M 35 45 L 45 40 L 40 50 Z M 60 70 L 68 65 L 63 75 Z" />
+                        
+                        <!-- Logo Label -->
+                        <rect x="32" y="90" width="36" height="24" rx="6" class="fill-blue-600/80" />
+                        <text x="50" y="107" font-size="11" font-weight="900" fill="#FFD000" text-anchor="middle">뽕따</text>
+                    </svg>
+
+                    <!-- Tap Ripple / Splash Prompt -->
+                    <div id="p2-action-hint" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span class="bg-yellow-400 text-slate-900 font-black text-xs px-3 py-1 rounded-full shadow-lg animate-bounce border border-white">
+                            快速擰捏！
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- P2 Bottom Floating Bubbles -->
+            <div class="h-2 w-full flex justify-center items-center gap-1 opacity-60">
+                <div class="w-2 h-2 rounded-full bg-white"></div>
+                <div class="w-3 h-3 rounded-full bg-cyan-200"></div>
+                <div class="w-2 h-2 rounded-full bg-white"></div>
+            </div>
+        </div>
+
+        <!-- ================= COUNTDOWN OVERLAY ================= -->
+        <div id="countdown-overlay" class="absolute inset-0 z-40 bg-black/60 backdrop-blur-md flex flex-col items-center justify-center hidden">
+            <div id="countdown-text" class="text-8xl font-black text-yellow-300 drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] animate-ping">
+                3
+            </div>
+            <p id="countdown-sub" class="text-white font-bold text-xl mt-6 tracking-widest bg-power-blue/80 px-6 py-2 rounded-full border border-cyan-300">
+                準備擰開 Power Cap！
+            </p>
+        </div>
+
+        <!-- Home Button in Center Dividing Line -->
+        <button onclick="returnToMenu()" class="absolute top-1/2 left-4 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/80 text-slate-800 shadow-lg flex items-center justify-center border border-white hover:bg-white active:scale-90 transition-transform">
+            <i class="fa-solid fa-house text-sm"></i>
+        </button>
+    </div>
+
+    <!-- ================= WIN / RESULT OVERLAY ================= -->
+    <div id="result-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-lg hidden">
+        <div class="w-full max-w-sm glass-card rounded-3xl p-6 text-center shadow-2xl relative border-4 border-cyan-300 overflow-hidden flex flex-col items-center">
+            
+            <!-- Melting Sun / Icy Background Graphic -->
+            <div id="result-bg-effect" class="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-yellow-400/30 blur-2xl pointer-events-none"></div>
+
+            <!-- Winner Crown Icon -->
+            <div class="w-16 h-16 rounded-full bg-yellow-400 text-slate-900 flex items-center justify-center text-3xl font-black shadow-lg mb-2 border-2 border-white animate-bounce">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+
+            <div id="winner-tag" class="text-xs font-black uppercase tracking-widest px-3 py-1 bg-power-blue text-white rounded-full mb-2">
+                VICTORY!
+            </div>
+
+            <h2 id="winner-title" class="text-3xl font-black text-slate-900 mb-1">
+                玩家 2 獲勝！
+            </h2>
+
+            <p class="text-sm font-bold text-cyan-700 mb-4">
+                爆爽扭開！滿填 -5℃ 涼爽能量！
+            </p>
+
+            <!-- Penalty / Social Viral Banner -->
+            <div class="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-2xl p-3.5 my-2 shadow-inner border border-rose-300">
+                <div class="text-[11px] opacity-90 font-semibold mb-0.5">懲罰約定 BANNER</div>
+                <div class="text-lg font-black tracking-wide text-yellow-200 drop-shadow">
+                    「輸咗嘅請食 Binggrae！」
+                </div>
+            </div>
+
+            <!-- Stats Box -->
+            <div class="grid grid-cols-2 gap-2 w-full my-3 text-xs">
+                <div class="bg-sky-100/80 p-2.5 rounded-xl border border-sky-200">
+                    <span class="block text-slate-500 text-[10px]">勝者手速</span>
+                    <span id="stat-speed" class="font-black text-power-blue text-base">4.2 次/秒</span>
+                </div>
+                <div class="bg-sky-100/80 p-2.5 rounded-xl border border-sky-200">
+                    <span class="block text-slate-500 text-[10px]">對局用時</span>
+                    <span id="stat-time" class="font-black text-power-blue text-base">8.5 秒</span>
+                </div>
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="w-full space-y-2.5 mt-2">
+                <button onclick="restartGame()" class="w-full py-3.5 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-slate-900 font-black text-lg rounded-xl shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>再搶一次 (Rechallenge)</span>
+                </button>
+
+                <button onclick="shareResult()" class="w-full py-2.5 bg-sky-500 hover:bg-sky-400 text-white font-bold text-sm rounded-xl shadow transform active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-share-nodes"></i>
+                    <span>複製戰報 / 發起 PK 挑戰</span>
+                </button>
+
+                <button onclick="returnToMenu()" class="w-full py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-xs rounded-xl">
+                    返回主選單
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MESSAGE TOAST -->
+    <div id="toast" class="fixed top-12 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 text-white text-xs font-bold px-4 py-2 rounded-full shadow-2xl border border-cyan-400/50 opacity-0 transition-opacity duration-300 pointer-events-none">
+        已複製挑戰連結！
+    </div>
+
+
+    <!-- ================= GAME LOGIC ENGINE ================= -->
+    <script>
+        /* --- GAME CONFIG & STATE --- */
+        let gameMode = '2p'; // '1p' or '2p'
+        let isPlaying = false;
+        let audioEnabled = true;
+
+        const MAX_ENERGY = 100;
+        const TAP_POWER = 4; // Energy gain per valid tap/twist
+        const AI_TAP_INTERVAL = 140; // ms per tap for AI
+
+        let p1Score = 0;
+        let p2Score = 0;
+        let p1CapOff = false;
+        let p2CapOff = false;
+
+        let startTime = 0;
+        let p1Taps = 0;
+        let p2Taps = 0;
+
+        let aiTimer = null;
+
+        /* --- WEB AUDIO SYNTHESIZER (No External Sound Files Required) --- */
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    audioCtx = new AudioContext();
+                }
+            }
+        }
+
+        function playSound(type) {
+            if (!audioEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'twist') {
+                // Short snappy twist plastic click
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.05);
+                
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } 
+            else if (type === 'pop') {
+                // Bottle Cap Pop Sound
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+
+                gain.gain.setValueAtTime(0.8, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            } 
+            else if (type === 'countdown') {
+                // Beep sound
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            } 
+            else if (type === 'go') {
+                // High pitch start beep
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(880, now);
+
+                gain.gain.setValueAtTime(0.5, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+            else if (type === 'win') {
+                // Victory Fanfare Arpeggio
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, index) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + index * 0.1);
+
+                    gain.gain.setValueAtTime(0.4, now + index * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + index * 0.1 + 0.3);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + index * 0.1);
+                    osc.stop(now + index * 0.1 + 0.3);
+                });
+            }
+        }
+
+        function triggerHaptic() {
+            if (navigator.vibrate) {
+                navigator.vibrate(25);
+            }
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const icon = document.getElementById('audio-icon');
+            const btnText = document.getElementById('btn-audio-toggle');
+            if (audioEnabled) {
+                icon.className = 'fa-solid fa-volume-high mr-1';
+                btnText.innerHTML = '<i class="fa-solid fa-volume-high mr-1"></i> 音效: 開啟';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark mr-1';
+                btnText.innerHTML = '<i class="fa-solid fa-volume-xmark mr-1"></i> 音效: 關閉';
+            }
+        }
+
+        /* --- UI & MODE NAVIGATION --- */
+        function startGame(mode) {
+            initAudio();
+            gameMode = mode;
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-container').classList.remove('hidden');
+
+            const p1Zone = document.getElementById('p1-zone');
+            const p1Name = document.getElementById('p1-name');
+            const p1Avatar = document.getElementById('p1-avatar');
+
+            if (mode === '1p') {
+                // Single Player mode vs AI: Unrotate P1 view for normal single phone viewing
+                p1Zone.classList.remove('rotate-180');
+                p1Name.innerText = 'Binggrae AI 冰沙Bot';
+                p1Avatar.innerText = 'AI';
+                p1Avatar.className = 'w-9 h-9 rounded-full bg-cyan-400 border-2 border-white flex items-center justify-center text-slate-900 font-black text-sm shadow';
+            } else {
+                // 2P Mode: Rotate Top area upside down for face-to-face play
+                p1Zone.classList.add('rotate-180');
+                p1Name.innerText = '玩家 1 (Top)';
+                p1Avatar.innerText = 'P1';
+                p1Avatar.className = 'w-9 h-9 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center text-slate-900 font-black text-sm shadow';
+            }
+
+            resetBoard();
+            startCountdown();
+        }
+
+        function returnToMenu() {
+            clearInterval(aiTimer);
+            isPlaying = false;
+            document.getElementById('result-modal').classList.add('hidden');
+            document.getElementById('game-container').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+
+        function resetBoard() {
+            p1Score = 0;
+            p2Score = 0;
+            p1Taps = 0;
+            p2Taps = 0;
+            p1CapOff = false;
+            p2CapOff = false;
+
+            updateEnergyUI('p1', 0);
+            updateEnergyUI('p2', 0);
+
+            // Reset SVG Cap Transforms
+            document.getElementById('p1-cap-group').style.transform = 'translate(0, 0) rotate(0deg)';
+            document.getElementById('p2-cap-group').style.transform = 'translate(0, 0) rotate(0deg)';
+            document.getElementById('p1-cap-group').style.opacity = '1';
+            document.getElementById('p2-cap-group').style.opacity = '1';
+
+            // Show action hints
+            document.getElementById('p1-action-hint').style.display = 'flex';
+            document.getElementById('p2-action-hint').style.display = 'flex';
+        }
+
+        function startCountdown() {
+            const overlay = document.getElementById('countdown-overlay');
+            const countText = document.getElementById('countdown-text');
+            overlay.classList.remove('hidden');
+
+            let count = 3;
+            countText.innerText = count;
+            playSound('countdown');
+
+            const timer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countText.innerText = count;
+                    playSound('countdown');
+                } else if (count === 0) {
+                    countText.innerText = 'GO!';
+                    playSound('go');
+                } else {
+                    clearInterval(timer);
+                    overlay.classList.add('hidden');
+                    isPlaying = true;
+                    startTime = Date.now();
+
+                    if (gameMode === '1p') {
+                        startAIBot();
+                    }
+                }
+            }, 800);
+        }
+
+        /* --- INTERACTION HANDLERS --- */
+        function handlePlayerTap(player) {
+            if (!isPlaying) return;
+
+            playSound('twist');
+            triggerHaptic();
+
+            if (player === 'p1') {
+                p1Taps++;
+                p1Score += TAP_POWER;
+                if (p1Score > MAX_ENERGY) p1Score = MAX_ENERGY;
+                
+                animateBottle('p1');
+                updateEnergyUI('p1', p1Score);
+
+                if (p1Score >= 20 && !p1CapOff) {
+                    snapCapOff('p1');
+                }
+
+                if (p1Score >= MAX_ENERGY) {
+                    triggerWin('p1');
+                }
+            } else if (player === 'p2') {
+                p2Taps++;
+                p2Score += TAP_POWER;
+                if (p2Score > MAX_ENERGY) p2Score = MAX_ENERGY;
+
+                animateBottle('p2');
+                updateEnergyUI('p2', p2Score);
+
+                if (p2Score >= 20 && !p2CapOff) {
+                    snapCapOff('p2');
+                }
+
+                if (p2Score >= MAX_ENERGY) {
+                    triggerWin('p2');
+                }
+            }
+        }
+
+        function animateBottle(player) {
+            const box = document.getElementById(`${player}-bottle-box`);
+            const cap = document.getElementById(`${player}-cap-group`);
+            
+            // Bottle Shake
+            box.classList.remove('bottle-shake');
+            void box.offsetWidth; // trigger reflow
+            box.classList.add('bottle-shake');
+
+            // Cap Twist Angle Animation
+            if ((player === 'p1' && !p1CapOff) || (player === 'p2' && !p2CapOff)) {
+                const angle = (Math.random() > 0.5 ? 20 : -20);
+                cap.style.transform = `rotate(${angle}deg)`;
+                setTimeout(() => {
+                    if ((player === 'p1' && !p1CapOff) || (player === 'p2' && !p2CapOff)) {
+                        cap.style.transform = `rotate(0deg)`;
+                    }
+                }, 100);
+            }
+        }
+
+        function snapCapOff(player) {
+            if (player === 'p1') p1CapOff = true;
+            if (player === 'p2') p2CapOff = true;
+
+            playSound('pop');
+            
+            const capGroup = document.getElementById(`${player}-cap-group`);
+            const actionHint = document.getElementById(`${player}-action-hint`);
+            
+            // Pop Cap Off Screen Animation
+            capGroup.style.transform = 'translateY(-40px) rotate(45deg)';
+            capGroup.style.opacity = '0';
+            actionHint.style.display = 'none';
+        }
+
+        function updateEnergyUI(player, score) {
+            const bar = document.getElementById(`${player}-bar`);
+            const scoreText = document.getElementById(`${player}-score-text`);
+            const slushPath = document.getElementById(`${player}-slush-path`);
+
+            bar.style.width = `${score}%`;
+            scoreText.innerText = `能量 ${Math.round(score)}%`;
+
+            // SVG Slush level decreases/shrinks down as squeezed out
+            // Initial path height ~ 60, empty ~ 140
+            const slushTopY = 60 + (score / 100) * 75;
+            slushPath.setAttribute('d', `M 27 ${slushTopY} C 27 ${slushTopY}, 73 ${slushTopY}, 73 ${slushTopY} C 80 115, 80 135, 72 143 C 68 148, 32 148, 28 143 C 20 135, 20 115, 27 ${slushTopY} Z`);
+        }
+
+        /* --- AI BOT LOGIC FOR 1P MODE --- */
+        function startAIBot() {
+            clearInterval(aiTimer);
+            aiTimer = setInterval(() => {
+                if (!isPlaying) return;
+                // Add slight randomness to AI tap timing
+                if (Math.random() > 0.15) {
+                    handlePlayerTap('p1');
+                }
+            }, AI_TAP_INTERVAL);
+        }
+
+        /* --- WIN / LOSS HANDLING --- */
+        function triggerWin(winner) {
+            isPlaying = false;
+            clearInterval(aiTimer);
+            playSound('win');
+
+            const durationSec = ((Date.now() - startTime) / 1000).toFixed(1);
+            const winnerTaps = (winner === 'p1') ? p1Taps : p2Taps;
+            const tapSpeed = (winnerTaps / (durationSec || 1)).toFixed(1);
+
+            // Trigger Confetti
+            if (window.confetti) {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#00A8FF', '#70D6FF', '#FFD000', '#FFFFFF']
+                });
+            }
+
+            // Populate Result Modal
+            const modal = document.getElementById('result-modal');
+            const winnerTitle = document.getElementById('winner-title');
+            const winnerTag = document.getElementById('winner-tag');
+            const statSpeed = document.getElementById('stat-speed');
+            const statTime = document.getElementById('stat-time');
+
+            if (winner === 'p1') {
+                winnerTitle.innerText = (gameMode === '1p') ? 'AI 冰沙Bot 獲勝！' : '玩家 1 (Top) 獲勝！';
+                winnerTag.innerText = 'PLAYER 1 WIN';
+            } else {
+                winnerTitle.innerText = (gameMode === '1p') ? '你成功戰勝 AI！' : '玩家 2 (Bottom) 獲勝！';
+                winnerTag.innerText = 'PLAYER 2 WIN';
+            }
+
+            statSpeed.innerText = `${tapSpeed} 次/秒`;
+            statTime.innerText = `${durationSec} 秒`;
+
+            modal.classList.remove('hidden');
+        }
+
+        function restartGame() {
+            document.getElementById('result-modal').classList.add('hidden');
+            resetBoard();
+            startCountdown();
+        }
+
+        function shareResult() {
+            const shareText = "【Binggrae Power Cap】我喺「雙人手速搶擰冰沙」挑戰贏咗！輸咗嘅請食 Power Cap！快啲來 PK：";
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareText + window.location.href);
+                showToast("已複製戰報與PK連結！");
+            } else {
+                showToast("請截圖分享給朋友挑戰！");
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.remove('opacity-0');
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+            }, 2000);
+        }
+
+        /* --- BIND EVENT LISTENERS (Touch & Click Support) --- */
+        window.addEventListener('DOMContentLoaded', () => {
+            const p1Box = document.getElementById('p1-bottle-box');
+            const p2Box = document.getElementById('p2-bottle-box');
+
+            // Touch & Pointer events for responsive low-latency taps
+            const p1Handler = (e) => {
+                e.preventDefault();
+                if (gameMode === '2p') handlePlayerTap('p1');
+            };
+
+            const p2Handler = (e) => {
+                e.preventDefault();
+                handlePlayerTap('p2');
+            };
+
+            p1Box.addEventListener('touchstart', p1Handler, { passive: false });
+            p1Box.addEventListener('mousedown', p1Handler);
+
+            p2Box.addEventListener('touchstart', p2Handler, { passive: false });
+            p2Box.addEventListener('mousedown', p2Handler);
+        });
+    </script>
+</body>
+</html>
